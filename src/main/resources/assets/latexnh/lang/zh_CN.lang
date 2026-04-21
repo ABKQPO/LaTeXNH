@@ -1,0 +1,27 @@
+latexnh.gui.config.general=总览配置
+latexnh.gui.config.general.debug=调试设置
+latexnh.gui.config.general.debug.tooltip=开发与调试
+
+latexnh.gui.config.general.debug.enabledebugmode=调试模式
+latexnh.gui.config.general.debug.enabledebugmode.tooltip=启用调试日志输出
+
+latexnh.gui.config.general.render=渲染设置
+latexnh.gui.config.general.render.tooltip=LaTeX / Markdown 渲染选项
+
+latexnh.gui.config.general.render.enablelatexrendering=启用 LaTeX 渲染
+latexnh.gui.config.general.render.enablelatexrendering.tooltip=将 $...$ 和 $$...$$ 渲染为 LaTeX 公式图像，关闭后显示原始文本
+
+latexnh.gui.config.general.render.enablehovertooltip=启用 Alt+悬停 Tooltip
+latexnh.gui.config.general.render.enablehovertooltip.tooltip=悬停于渲染成功或失败的 LaTeX 并按住 Alt 时，显示公式原文或语法错误信息
+
+latexnh.gui.config.general.render.tooltipscale=Tooltip 缩放
+latexnh.gui.config.general.render.tooltipscale.tooltip=Alt+悬停图像 tooltip 的缩放系数，1.0 = 默认大小
+
+latexnh.gui.config.general.render.inlineheight=行内公式高度
+latexnh.gui.config.general.render.inlineheight.tooltip=行内 LaTeX 公式的目标显示高度（GUI 逻辑单位），默认 16 ≈ 2 倍字体高度
+
+key.latexnh.showLatex=显示 LaTeX Tooltip
+key.categories.latexnh=LaTeXNH
+latexnh.tooltip.source.title=LaTeX 原文
+latexnh.tooltip.error.summary=LaTeX:%1$d:%2$d: 语法错误
+latexnh.tooltip.error.message=详细信息：%1$s

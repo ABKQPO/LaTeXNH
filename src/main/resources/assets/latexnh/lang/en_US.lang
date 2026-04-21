@@ -1,0 +1,27 @@
+latexnh.gui.config.general=General Config
+latexnh.gui.config.general.debug=Debug Settings
+latexnh.gui.config.general.debug.tooltip=Options for development and debugging.
+
+latexnh.gui.config.general.debug.enabledebugmode=Debug Mode
+latexnh.gui.config.general.debug.enabledebugmode.tooltip=Enable verbose debug log output.
+
+latexnh.gui.config.general.render=Rendering Settings
+latexnh.gui.config.general.render.tooltip=LaTeX / Markdown rendering options.
+
+latexnh.gui.config.general.render.enablelatexrendering=Enable LaTeX Rendering
+latexnh.gui.config.general.render.enablelatexrendering.tooltip=Render $...$ and $$...$$ as LaTeX formulas inline. Disable to show raw text.
+
+latexnh.gui.config.general.render.enablehovertooltip=Enable Alt+Hover Tooltip
+latexnh.gui.config.general.render.enablehovertooltip.tooltip=Hold Alt while hovering over rendered or failed LaTeX to show the raw formula source or parse errors.
+
+latexnh.gui.config.general.render.tooltipscale=Tooltip Scale
+latexnh.gui.config.general.render.tooltipscale.tooltip=Scale factor for the Alt+hover rendered image tooltip. 1.0 = default size.
+
+latexnh.gui.config.general.render.inlineheight=Inline Formula Height
+latexnh.gui.config.general.render.inlineheight.tooltip=Display height (in GUI units) for inline LaTeX formulas. Default: 16 (~2x font height).
+
+key.latexnh.showLatex=Show LaTeX Tooltip
+key.categories.latexnh=LaTeXNH
+latexnh.tooltip.source.title=LaTeX Source
+latexnh.tooltip.error.summary=LaTeX:%1$d:%2$d: Syntax error
+latexnh.tooltip.error.message=Message: %1$s
