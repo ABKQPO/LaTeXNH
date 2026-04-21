@@ -52,4 +52,4 @@ Requires Java 8+.  The mod targets Minecraft **1.7.10** with Forge **10.13.4.161
 
 ## License
 
-MIT
+GPL v3
