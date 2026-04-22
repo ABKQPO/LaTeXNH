@@ -1,4 +1,4 @@
-package com.hfstudio.mixins.early.Minecraft;
+package com.hfstudio.mixins.early.minecraft;
 
 import org.lwjgl.input.Mouse;
 import org.spongepowered.asm.mixin.Mixin;

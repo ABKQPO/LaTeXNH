@@ -1,9 +1,10 @@
-package com.hfstudio.mixins.early.minecraft;
+package com.hfstudio.mixins.early.compat;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,8 +21,9 @@ import com.hfstudio.render.markdown.MarkdownParser;
 import com.hfstudio.render.markdown.TextSegment;
 import com.hfstudio.tooltip.TooltipRenderer;
 
-@Mixin(GuiTextField.class)
-public abstract class MixinGuiTextField {
+@Pseudo
+@Mixin(targets = "codechicken.nei.FormattedTextField", remap = false)
+public abstract class MixinNEIFormattedTextField extends GuiTextField {
 
     @Unique
     private TextFieldLatexPreview.Plan latexnh$boundaryPreviewPlan;
@@ -33,28 +35,15 @@ public abstract class MixinGuiTextField {
     private boolean latexnh$lineScrollOffsetOverridden;
 
     @Shadow
-    private String text;
+    protected FontRenderer fontRenderer;
 
     @Shadow
-    private int cursorPosition;
+    protected int lineScrollOffset;
 
-    @Shadow
-    private boolean isFocused;
-
-    @Shadow
-    private FontRenderer field_146211_a;
-
-    @Shadow
-    private int lineScrollOffset;
-
-    @Shadow
-    public abstract int getWidth();
-
-    @Shadow
-    public int xPosition;
-
-    @Shadow
-    public int yPosition;
+    public MixinNEIFormattedTextField(FontRenderer p_i1032_1_, int p_i1032_2_, int p_i1032_3_, int p_i1032_4_,
+        int p_i1032_5_) {
+        super(p_i1032_1_, p_i1032_2_, p_i1032_3_, p_i1032_4_, p_i1032_5_);
+    }
 
     @Inject(method = "drawTextBox", at = @At("HEAD"))
     private void latexnh$beforeDrawTextBox(CallbackInfo ci) {
@@ -62,18 +51,22 @@ public abstract class MixinGuiTextField {
         latexnh$boundaryPreviewPlan = null;
         latexnh$originalLineScrollOffset = lineScrollOffset;
         latexnh$lineScrollOffsetOverridden = false;
-        if (!ModConfig.render.enableLatexRendering || text == null || text.isEmpty()) {
+
+        String currentText = getText();
+        if (!ModConfig.render.enableLatexRendering || currentText == null || currentText.isEmpty()) {
             LatexRenderContext.INSTANCE.clearEditingFormula();
             return;
         }
 
-        TextSegment activeSegment = isFocused ? MarkdownParser.getLatexSegmentAtCursor(text, cursorPosition) : null;
+        TextSegment activeSegment = isFocused()
+            ? MarkdownParser.getLatexSegmentAtCursor(currentText, getCursorPosition())
+            : null;
         if (activeSegment != null) {
             LatexRenderContext.INSTANCE.setEditingFormula(activeSegment, true);
             return;
         }
 
-        latexnh$boundaryPreviewPlan = latexnh$buildBoundaryPreviewPlan();
+        latexnh$boundaryPreviewPlan = latexnh$buildBoundaryPreviewPlan(currentText);
         if (latexnh$boundaryPreviewPlan.inlinePreview) {
             lineScrollOffset = latexnh$boundaryPreviewPlan.visibleStartIndex;
             latexnh$lineScrollOffsetOverridden = true;
@@ -85,13 +78,15 @@ public abstract class MixinGuiTextField {
     @Inject(method = "drawTextBox", at = @At("RETURN"))
     private void latexnh$afterDrawTextBox(CallbackInfo ci) {
         try {
-            TextSegment activeSegment = !isFocused || text == null ? null
-                : MarkdownParser.getLatexSegmentAtCursor(text, cursorPosition);
+            String currentText = getText();
+            TextSegment activeSegment = !isFocused() || currentText == null ? null
+                : MarkdownParser.getLatexSegmentAtCursor(currentText, getCursorPosition());
+
             LatexRenderContext.INSTANCE.clearEditingFormula();
             LatexRenderContext.INSTANCE.clearRenderSlice();
-            if (!ModConfig.render.enableLatexRendering || !isFocused
-                || text == null
-                || text.isEmpty()
+            if (!ModConfig.render.enableLatexRendering || !isFocused()
+                || currentText == null
+                || currentText.isEmpty()
                 || activeSegment == null) {
                 return;
             }
@@ -119,7 +114,9 @@ public abstract class MixinGuiTextField {
         method = "drawTextBox",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/FontRenderer;trimStringToWidth(Ljava/lang/String;I)Ljava/lang/String;"))
+            target = "Lnet/minecraft/client/gui/FontRenderer;trimStringToWidth(Ljava/lang/String;I)Ljava/lang/String;",
+            ordinal = 1),
+        require = 0)
     private String latexnh$useBoundaryPreviewVisibleText(FontRenderer fontRenderer, String value, int width) {
         if (latexnh$boundaryPreviewPlan != null && latexnh$boundaryPreviewPlan.inlinePreview) {
             return latexnh$boundaryPreviewPlan.visibleText;
@@ -132,7 +129,8 @@ public abstract class MixinGuiTextField {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/gui/FontRenderer;drawStringWithShadow(Ljava/lang/String;III)I",
-            ordinal = 0))
+            ordinal = 1),
+        require = 0)
     private int latexnh$drawPrefixWithRenderSlice(FontRenderer fontRenderer, String value, int x, int y, int color) {
         return latexnh$drawStringWithSlice(fontRenderer, value, x, y, color, lineScrollOffset);
     }
@@ -142,16 +140,18 @@ public abstract class MixinGuiTextField {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/gui/FontRenderer;drawStringWithShadow(Ljava/lang/String;III)I",
-            ordinal = 1))
+            ordinal = 2),
+        require = 0)
     private int latexnh$drawSuffixWithRenderSlice(FontRenderer fontRenderer, String value, int x, int y, int color) {
-        return latexnh$drawStringWithSlice(fontRenderer, value, x, y, color, cursorPosition);
+        return latexnh$drawStringWithSlice(fontRenderer, value, x, y, color, getCursorPosition());
     }
 
     @Redirect(
         method = "drawTextBox",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/FontRenderer;getStringWidth(Ljava/lang/String;)I"))
+            target = "Lnet/minecraft/client/gui/FontRenderer;getStringWidth(Ljava/lang/String;)I"),
+        require = 0)
     private int latexnh$getStringWidthWithRenderSlice(FontRenderer fontRenderer, String value) {
         LatexRenderContext.INSTANCE.setRenderSlice(value, lineScrollOffset);
         try {
@@ -173,16 +173,16 @@ public abstract class MixinGuiTextField {
     }
 
     @Unique
-    private TextFieldLatexPreview.Plan latexnh$buildBoundaryPreviewPlan() {
+    private TextFieldLatexPreview.Plan latexnh$buildBoundaryPreviewPlan(String currentText) {
         int previewCursorPosition = TextFieldLatexPreview
-            .resolvePreviewCursor(isFocused, cursorPosition, lineScrollOffset);
-        String rawVisibleText = field_146211_a.trimStringToWidth(text.substring(lineScrollOffset), getWidth());
+            .resolvePreviewCursor(isFocused(), getCursorPosition(), lineScrollOffset);
+        String rawVisibleText = fontRenderer.trimStringToWidth(currentText.substring(lineScrollOffset), getWidth());
         return TextFieldLatexPreview.plan(
-            text,
+            currentText,
             previewCursorPosition,
             lineScrollOffset,
             rawVisibleText,
-            field_146211_a::getStringWidth,
+            fontRenderer::getStringWidth,
             getWidth());
     }
 

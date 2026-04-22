@@ -20,6 +20,15 @@ latexnh.gui.config.general.render.tooltipscale.tooltip=Alt+悬停图像 tooltip 
 latexnh.gui.config.general.render.inlineheight=行内公式高度
 latexnh.gui.config.general.render.inlineheight.tooltip=行内 LaTeX 公式的目标显示高度（GUI 逻辑单位），默认 16 ≈ 2 倍字体高度
 
+latexnh.gui.config.general.render.formulacolor=公式颜色
+latexnh.gui.config.general.render.formulacolor.tooltip=渲染后的 LaTeX 默认填充颜色。使用 #RRGGBB 或 #AARRGGBB，公式内的 § 颜色码仍会覆盖它。
+
+latexnh.gui.config.general.render.outlinecolor=描边颜色
+latexnh.gui.config.general.render.outlinecolor.tooltip=渲染后的 LaTeX 描边颜色。使用 #RRGGBB 或 #AARRGGBB。
+
+latexnh.gui.config.general.render.outlinethickness=描边粗细
+latexnh.gui.config.general.render.outlinethickness.tooltip=渲染后的 LaTeX 描边粗细，单位为源纹理像素。设为 0 可关闭描边。
+
 key.latexnh.showLatex=显示 LaTeX Tooltip
 key.categories.latexnh=LaTeXNH
 latexnh.tooltip.source.title=LaTeX 原文

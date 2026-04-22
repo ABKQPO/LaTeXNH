@@ -1,6 +1,7 @@
-package com.hfstudio.mixins.early.Minecraft;
+package com.hfstudio.mixins.early.minecraft;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.world.WorldSettings;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,5 +28,15 @@ public class MixinMinecraft {
         if (settings == null) {
             LatexTextureCache.INSTANCE.clearAll();
         }
+    }
+
+    @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;)V", at = @At("HEAD"))
+    private void latexnh$onSwitchWorld(WorldClient worldClient, CallbackInfo ci) {
+        LatexTextureCache.INSTANCE.clearAll();
+    }
+
+    @Inject(method = "shutdownMinecraftApplet", at = @At("HEAD"))
+    private void latexnh$onShutdown(CallbackInfo ci) {
+        LatexTextureCache.INSTANCE.clearAll();
     }
 }

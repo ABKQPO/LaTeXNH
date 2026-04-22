@@ -1,4 +1,4 @@
-package com.hfstudio.mixins.early.Minecraft;
+package com.hfstudio.mixins.early.minecraft;
 
 import net.minecraft.client.gui.GuiScreen;
 

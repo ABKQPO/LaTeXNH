@@ -138,7 +138,7 @@ public final class MarkdownParser {
                 continue;
             }
             if (splitIdx > segment.startIndex && splitIdx < segment.endIndex) {
-                return segment.startIndex == 0 ? segment.endIndex : segment.startIndex;
+                return hasRenderablePrefix(text, segment.startIndex) ? segment.startIndex : segment.endIndex;
             }
         }
         return splitIdx;
@@ -241,6 +241,18 @@ public final class MarkdownParser {
             backslashes++;
         }
         return (backslashes & 1) == 1;
+    }
+
+    private static boolean hasRenderablePrefix(String text, int endExclusive) {
+        for (int i = 0; i < endExclusive; i++) {
+            char ch = text.charAt(i);
+            if (ch == '\u00a7' && i + 1 < endExclusive) {
+                i++;
+                continue;
+            }
+            return true;
+        }
+        return false;
     }
 
     private static ErrorLocation findErrorLocation(String formula, String errMsg) {

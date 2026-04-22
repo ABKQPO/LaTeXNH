@@ -8,12 +8,15 @@ public enum Mixins implements IMixins {
     EARLY(new MixinBuilder()
         .addSidedMixins(
             Side.CLIENT,
-            "Minecraft.MixinEntityRenderer",
-            "Minecraft.MixinFontRenderer",
-            "Minecraft.MixinMouse",
-            "Minecraft.MixinGuiScreen",
-            "Minecraft.MixinGuiTextField",
-            "Minecraft.MixinMinecraft")
+            "minecraft.MixinEntityRenderer",
+            "compat.MixinAngelicaBatchingFontRenderer",
+            "minecraft.MixinFontRenderer",
+            "minecraft.MixinMouse",
+            "minecraft.MixinGuiScreen",
+            "minecraft.MixinGuiTextField",
+            "compat.MixinNEIFormattedTextField",
+            "minecraft.MixinMinecraft",
+            "compat.MixinSmoothFontFontRendererHook")
         .setPhase(Phase.EARLY));
 
     private final MixinBuilder builder;

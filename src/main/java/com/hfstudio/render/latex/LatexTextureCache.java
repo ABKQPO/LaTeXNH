@@ -25,15 +25,16 @@ public final class LatexTextureCache {
     };
 
     private final Map<String, String> errorMessages = new HashMap<>();
+    private String activeStyleKey;
 
     private LatexTextureCache() {}
 
-    public int[] get(String formula) {
-        return cache.get(formula);
+    public int[] get(String formula, LatexRenderStyle style) {
+        return cache.get(buildCacheKey(formula, style));
     }
 
-    public void put(String formula, int textureId, int widthPx, int heightPx) {
-        cache.put(formula, new int[] { textureId, widthPx, heightPx });
+    public void put(String formula, LatexRenderStyle style, int textureId, int widthPx, int heightPx) {
+        cache.put(buildCacheKey(formula, style), new int[] { textureId, widthPx, heightPx });
     }
 
     public boolean hasFailed(String formula) {
@@ -48,11 +49,33 @@ public final class LatexTextureCache {
         return errorMessages.get(formula);
     }
 
+    public void onStyleChanged(String styleKey) {
+        if (styleKey == null || styleKey.isEmpty()) {
+            return;
+        }
+        if (activeStyleKey == null) {
+            activeStyleKey = styleKey;
+            return;
+        }
+        if (activeStyleKey.equals(styleKey)) {
+            return;
+        }
+
+        activeStyleKey = styleKey;
+        if (!cache.isEmpty()) {
+            LatexCacheCleanupHandler.INSTANCE.scheduleClear();
+        }
+    }
+
     public void clearAll() {
         for (int[] v : cache.values()) {
             GL11.glDeleteTextures(v[0]);
         }
         cache.clear();
         errorMessages.clear();
+    }
+
+    private static String buildCacheKey(String formula, LatexRenderStyle style) {
+        return style.cacheKey() + '\u0000' + formula;
     }
 }

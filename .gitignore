@@ -56,3 +56,5 @@ layout.json
 /temp_decompile_src
 /src/tests
 /src/build
+/.gradle-user
+/libs

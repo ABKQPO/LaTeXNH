@@ -1,4 +1,4 @@
-package com.hfstudio.mixins.early.Minecraft;
+package com.hfstudio.mixins.early.minecraft;
 
 import java.util.Collections;
 import java.util.List;

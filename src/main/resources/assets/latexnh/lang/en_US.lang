@@ -20,6 +20,15 @@ latexnh.gui.config.general.render.tooltipscale.tooltip=Scale factor for the Alt+
 latexnh.gui.config.general.render.inlineheight=Inline Formula Height
 latexnh.gui.config.general.render.inlineheight.tooltip=Display height (in GUI units) for inline LaTeX formulas. Default: 16 (~2x font height).
 
+latexnh.gui.config.general.render.formulacolor=Formula Color
+latexnh.gui.config.general.render.formulacolor.tooltip=Default fill color for rendered LaTeX. Use #RRGGBB or #AARRGGBB. § color codes inside the formula still override it.
+
+latexnh.gui.config.general.render.outlinecolor=Outline Color
+latexnh.gui.config.general.render.outlinecolor.tooltip=Outline color around rendered LaTeX. Use #RRGGBB or #AARRGGBB.
+
+latexnh.gui.config.general.render.outlinethickness=Outline Thickness
+latexnh.gui.config.general.render.outlinethickness.tooltip=Outline thickness around rendered LaTeX in source texture pixels. 0 disables the outline.
+
 key.latexnh.showLatex=Show LaTeX Tooltip
 key.categories.latexnh=LaTeXNH
 latexnh.tooltip.source.title=LaTeX Source

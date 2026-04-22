@@ -26,10 +26,16 @@ public final class LatexRenderer {
     private LatexRenderer() {}
 
     public int[] getOrCreateTexture(String formula) {
-        int[] cached = LatexTextureCache.INSTANCE.get(formula);
-        if (cached != null) {
-            return cached;
-        }
+        return getOrCreateTexture(formula, LatexRenderStyle.fromConfig(), null);
+    }
+
+    public int[] getOrCreateTexture(String formula, int fillColorArgb, int[] colorPalette) {
+        return getOrCreateTexture(formula, LatexRenderStyle.fromConfig(fillColorArgb), colorPalette);
+    }
+
+    private int[] getOrCreateTexture(String formula, LatexRenderStyle style, int[] colorPalette) {
+        LatexTextureCache.INSTANCE.onStyleChanged(LatexRenderStyle.configCacheKey());
+
         if (LatexTextureCache.INSTANCE.hasFailed(formula)) {
             return null;
         }
@@ -37,33 +43,34 @@ public final class LatexRenderer {
         try {
             String strippedFormula = LatexFormattingParser.stripFormattingCodes(formula);
             new TeXFormula(strippedFormula);
+            String renderableFormula = LatexFormattingParser
+                .toRenderableFormula(formula, style.fillColorArgb, colorPalette);
+            String cacheFormula = renderableFormula;
+
+            int[] cached = LatexTextureCache.INSTANCE.get(cacheFormula, style);
+            if (cached != null) {
+                return cached;
+            }
 
             TeXFormula texFormula;
             try {
-                texFormula = new TeXFormula(LatexFormattingParser.toRenderableFormula(formula));
+                texFormula = new TeXFormula(renderableFormula);
             } catch (ParseException ignored) {
+                cacheFormula = strippedFormula;
+                cached = LatexTextureCache.INSTANCE.get(cacheFormula, style);
+                if (cached != null) {
+                    return cached;
+                }
                 texFormula = new TeXFormula(strippedFormula);
             }
             TeXIcon icon = texFormula.createTeXIcon(TeXConstants.STYLE_DISPLAY, RENDER_SCALE);
             icon.setInsets(new Insets(2, 2, 2, 2));
-            icon.setForeground(Color.WHITE);
+            icon.setForeground(new Color(style.fillColorArgb, true));
 
-            int width = icon.getIconWidth();
-            int height = icon.getIconHeight();
-
-            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D graphics = image.createGraphics();
-            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            graphics.setColor(new Color(0, 0, 0, 0));
-            graphics.fillRect(0, 0, width, height);
-            icon.paintIcon(null, graphics, 0, 0);
-            graphics.dispose();
-
-            int textureId = uploadTexture(image, width, height);
-            LatexTextureCache.INSTANCE.put(formula, textureId, width, height);
-            return new int[] { textureId, width, height };
+            BufferedImage image = renderFormulaImage(icon, style);
+            int textureId = uploadTexture(image, image.getWidth(), image.getHeight());
+            LatexTextureCache.INSTANCE.put(cacheFormula, style, textureId, image.getWidth(), image.getHeight());
+            return new int[] { textureId, image.getWidth(), image.getHeight() };
         } catch (ParseException e) {
             String errorMessage = e.getMessage();
             LaTeXNH.LOG.warn("[LaTeXNH] LaTeX parse failure: {} - {}", formula, errorMessage);
@@ -80,7 +87,11 @@ public final class LatexRenderer {
     }
 
     public int drawLatex(String formula, float x, float y, float displayH) {
-        int[] texture = getOrCreateTexture(formula);
+        return drawLatex(formula, x, y, displayH, LatexRenderStyle.fromConfig().fillColorArgb, null);
+    }
+
+    public int drawLatex(String formula, float x, float y, float displayH, int fillColorArgb, int[] colorPalette) {
+        int[] texture = getOrCreateTexture(formula, fillColorArgb, colorPalette);
         if (texture == null) {
             return 0;
         }
@@ -91,7 +102,11 @@ public final class LatexRenderer {
     }
 
     public int measureLatexWidth(String formula, float displayH) {
-        int[] texture = getOrCreateTexture(formula);
+        return measureLatexWidth(formula, displayH, LatexRenderStyle.fromConfig().fillColorArgb, null);
+    }
+
+    public int measureLatexWidth(String formula, float displayH, int fillColorArgb, int[] colorPalette) {
+        int[] texture = getOrCreateTexture(formula, fillColorArgb, colorPalette);
         if (texture == null) {
             return 0;
         }
@@ -144,6 +159,23 @@ public final class LatexRenderer {
         tessellator.draw();
 
         GL11.glPopAttrib();
+    }
+
+    private BufferedImage renderFormulaImage(TeXIcon icon, LatexRenderStyle style) {
+        int width = icon.getIconWidth();
+        int height = icon.getIconHeight();
+
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        graphics.setColor(new Color(0, 0, 0, 0));
+        graphics.fillRect(0, 0, width, height);
+        icon.paintIcon(null, graphics, 0, 0);
+        graphics.dispose();
+
+        return LatexImageEffects.applyOutline(image, style.outlineColorArgb, style.outlineThicknessPx);
     }
 
     private static int uploadTexture(BufferedImage image, int width, int height) {

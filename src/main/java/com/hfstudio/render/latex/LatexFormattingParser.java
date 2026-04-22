@@ -18,7 +18,15 @@ public final class LatexFormattingParser {
     }
 
     public static String toRenderableFormula(String formula) {
-        List<FormattedRun> runs = parseRuns(formula);
+        return toRenderableFormula(formula, DEFAULT_ARGB);
+    }
+
+    public static String toRenderableFormula(String formula, int defaultArgb) {
+        return toRenderableFormula(formula, defaultArgb, null);
+    }
+
+    public static String toRenderableFormula(String formula, int defaultArgb, int[] colorPalette) {
+        List<FormattedRun> runs = parseRuns(formula, defaultArgb, colorPalette);
         if (runs.isEmpty()) {
             return "";
         }
@@ -31,14 +39,14 @@ public final class LatexFormattingParser {
             if (run.text.isEmpty()) {
                 continue;
             }
-            if (run.argb == DEFAULT_ARGB) {
+            if (run.argb == defaultArgb) {
                 body.append(run.text);
                 continue;
             }
 
-            int colorIndex = definedColors.indexOf(Integer.valueOf(run.argb));
+            int colorIndex = definedColors.indexOf(run.argb);
             if (colorIndex < 0) {
-                definedColors.add(Integer.valueOf(run.argb));
+                definedColors.add(run.argb);
                 colorIndex = definedColors.size() - 1;
                 String colorName = "latexnhcolor" + colorIndex;
                 appendColorDefinition(colorDefinitions, colorName, run.argb);
@@ -62,19 +70,33 @@ public final class LatexFormattingParser {
     }
 
     public static List<FormattedRun> parseRuns(String formula) {
+        return parseRuns(formula, DEFAULT_ARGB);
+    }
+
+    public static List<FormattedRun> parseRuns(String formula, int defaultArgb) {
+        return parseRuns(formula, defaultArgb, null);
+    }
+
+    public static List<FormattedRun> parseRuns(String formula, int defaultArgb, int[] colorPalette) {
         List<FormattedRun> runs = new ArrayList<>();
         if (formula == null || formula.isEmpty()) {
             return runs;
         }
 
         StringBuilder currentText = new StringBuilder();
-        int currentColor = DEFAULT_ARGB;
+        MinecraftTextFormattingState formattingState = new MinecraftTextFormattingState(defaultArgb, colorPalette);
+        int currentColor = formattingState.getCurrentColorArgb();
 
         for (int i = 0; i < formula.length(); i++) {
             char ch = formula.charAt(i);
-            if (ch == '\u00a7' && i + 1 < formula.length() && isFormattingCode(formula.charAt(i + 1))) {
-                flushRun(runs, currentText, currentColor);
-                currentColor = applyFormattingCode(currentColor, formula.charAt(++i));
+            if (ch == MinecraftTextFormattingState.FORMATTING_CHAR && i + 1 < formula.length()
+                && MinecraftTextFormattingState.isFormattingCode(formula.charAt(i + 1))) {
+                char code = formula.charAt(++i);
+                if (MinecraftTextFormattingState.isColorCode(code) || Character.toLowerCase(code) == 'r') {
+                    flushRun(runs, currentText, currentColor);
+                }
+                formattingState.applyFormattingCode(code);
+                currentColor = formattingState.getCurrentColorArgb();
                 continue;
             }
             currentText.append(ch);
@@ -99,81 +121,6 @@ public final class LatexFormattingParser {
             return;
         }
         runs.add(new FormattedRun(text, currentColor));
-    }
-
-    private static int applyFormattingCode(int currentColor, char code) {
-        switch (Character.toLowerCase(code)) {
-            case '0':
-                return 0xFF000000;
-            case '1':
-                return 0xFF0000AA;
-            case '2':
-                return 0xFF00AA00;
-            case '3':
-                return 0xFF00AAAA;
-            case '4':
-                return 0xFFAA0000;
-            case '5':
-                return 0xFFAA00AA;
-            case '6':
-                return 0xFFFFAA00;
-            case '7':
-                return 0xFFAAAAAA;
-            case '8':
-                return 0xFF555555;
-            case '9':
-                return 0xFF5555FF;
-            case 'a':
-                return 0xFF55FF55;
-            case 'b':
-                return 0xFF55FFFF;
-            case 'c':
-                return 0xFFFF5555;
-            case 'd':
-                return 0xFFFF55FF;
-            case 'e':
-                return 0xFFFFFF55;
-            case 'f':
-            case 'k':
-            case 'l':
-            case 'm':
-            case 'n':
-            case 'o':
-            case 'r':
-                return DEFAULT_ARGB;
-            default:
-                return currentColor;
-        }
-    }
-
-    private static boolean isFormattingCode(char code) {
-        switch (Character.toLowerCase(code)) {
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-            case 'a':
-            case 'b':
-            case 'c':
-            case 'd':
-            case 'e':
-            case 'f':
-            case 'k':
-            case 'l':
-            case 'm':
-            case 'n':
-            case 'o':
-            case 'r':
-                return true;
-            default:
-                return false;
-        }
     }
 
     private static void appendColorDefinition(StringBuilder sb, String colorName, int argb) {

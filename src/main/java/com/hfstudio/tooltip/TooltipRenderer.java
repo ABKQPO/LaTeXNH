@@ -53,26 +53,34 @@ public final class TooltipRenderer {
         int tooltipX = position.x;
         int tooltipY = position.y;
 
+        GL11.glPushAttrib(
+            GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT
+                | GL11.GL_CURRENT_BIT
+                | GL11.GL_DEPTH_BUFFER_BIT
+                | GL11.GL_LIGHTING_BIT
+                | GL11.GL_TEXTURE_BIT);
         GL11.glPushMatrix();
-        GL11.glTranslatef(0.0F, 0.0F, TOOLTIP_Z);
-        RenderHelper.disableStandardItemLighting();
-        GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glEnable(GL11.GL_BLEND);
+        try {
+            GL11.glTranslatef(0.0F, 0.0F, TOOLTIP_Z);
+            RenderHelper.disableStandardItemLighting();
+            GL11.glDisable(GL11.GL_LIGHTING);
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glEnable(GL11.GL_BLEND);
 
-        drawBackground(tooltipX - 3, tooltipY - 4, tooltipTextWidth + 6, tooltipHeight + 8);
+            drawBackground(tooltipX - 3, tooltipY - 4, tooltipTextWidth + 6, tooltipHeight + 8);
 
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        int textY = tooltipY;
-        for (int i = 0; i < wrappedLines.size(); i++) {
-            fontRenderer.drawStringWithShadow(wrappedLines.get(i), tooltipX, textY, 0xFFFFFF);
-            textY += i == 0 ? 12 : TEXT_LINE_HEIGHT;
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            int textY = tooltipY;
+            for (int i = 0; i < wrappedLines.size(); i++) {
+                fontRenderer.drawStringWithShadow(wrappedLines.get(i), tooltipX, textY, 0xFFFFFF);
+                textY += i == 0 ? 12 : TEXT_LINE_HEIGHT;
+            }
+            GL11.glColor4f(1f, 1f, 1f, 1f);
+        } finally {
+            GL11.glColor4f(1f, 1f, 1f, 1f);
+            GL11.glPopMatrix();
+            GL11.glPopAttrib();
         }
-
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glPopMatrix();
     }
 
     public void renderLatexTooltip(String formula, int mouseX, int mouseY) {
@@ -108,27 +116,36 @@ public final class TooltipRenderer {
         float tooltipX = position.x;
         float tooltipY = position.y;
 
+        GL11.glPushAttrib(
+            GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT
+                | GL11.GL_CURRENT_BIT
+                | GL11.GL_DEPTH_BUFFER_BIT
+                | GL11.GL_LIGHTING_BIT
+                | GL11.GL_TEXTURE_BIT);
         GL11.glPushMatrix();
-        GL11.glTranslatef(0.0F, 0.0F, TOOLTIP_Z);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        drawBackground(tooltipX - 5, tooltipY - 5, renderWidth + 10, renderHeight + 10);
+        try {
+            GL11.glTranslatef(0.0F, 0.0F, TOOLTIP_Z);
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            drawBackground(tooltipX - 5, tooltipY - 5, renderWidth + 10, renderHeight + 10);
 
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture[0]);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glColor4f(1f, 1f, 1f, 1f);
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture[0]);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GL11.glColor4f(1f, 1f, 1f, 1f);
 
-        Tessellator tessellator = Tessellator.instance;
-        tessellator.startDrawingQuads();
-        tessellator.addVertexWithUV(tooltipX, tooltipY + renderHeight, 0, 0, 1);
-        tessellator.addVertexWithUV(tooltipX + renderWidth, tooltipY + renderHeight, 0, 1, 1);
-        tessellator.addVertexWithUV(tooltipX + renderWidth, tooltipY, 0, 1, 0);
-        tessellator.addVertexWithUV(tooltipX, tooltipY, 0, 0, 0);
-        tessellator.draw();
-
-        GL11.glPopMatrix();
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
+            Tessellator tessellator = Tessellator.instance;
+            tessellator.startDrawingQuads();
+            tessellator.addVertexWithUV(tooltipX, tooltipY + renderHeight, 0, 0, 1);
+            tessellator.addVertexWithUV(tooltipX + renderWidth, tooltipY + renderHeight, 0, 1, 1);
+            tessellator.addVertexWithUV(tooltipX + renderWidth, tooltipY, 0, 1, 0);
+            tessellator.addVertexWithUV(tooltipX, tooltipY, 0, 0, 0);
+            tessellator.draw();
+        } finally {
+            GL11.glColor4f(1f, 1f, 1f, 1f);
+            GL11.glPopMatrix();
+            GL11.glPopAttrib();
+        }
     }
 
     private List<String> wrapLines(List<String> lines, FontRenderer fontRenderer, int maxWidth) {
