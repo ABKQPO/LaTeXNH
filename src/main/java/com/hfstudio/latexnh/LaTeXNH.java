@@ -16,7 +16,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
     modid = LaTeXNH.MODID,
     name = LaTeXNH.MODNAME,
     version = Tags.VERSION,
-    guiFactory = "com.hfstudio.latexnh.LaTeXNHGuiFactory")
+    guiFactory = "com.hfstudio.latexnh.config.LaTeXNHGuiFactory")
 public class LaTeXNH {
 
     public static final String MODID = Tags.MODID;

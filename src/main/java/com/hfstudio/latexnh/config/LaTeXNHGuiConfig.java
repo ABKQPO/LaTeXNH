@@ -4,7 +4,6 @@ import net.minecraft.client.gui.GuiScreen;
 
 import com.gtnewhorizon.gtnhlib.config.SimpleGuiConfig;
 import com.hfstudio.latexnh.LaTeXNH;
-import com.hfstudio.latexnh.ModConfig;
 
 public class LaTeXNHGuiConfig extends SimpleGuiConfig {
 
