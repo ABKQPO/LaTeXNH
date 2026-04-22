@@ -13,6 +13,8 @@ dependencies {
     annotationProcessor("com.google.auto.value:auto-value:1.10.4")
 
     compileOnlyApi("com.github.GTNewHorizons:Angelica:2.1.18:dev")
+    // runtimeOnlyNonPublishable files("libs/smoothfont-dev.jar")
+    compileOnlyApi(rfg.deobf("curse.maven:smooth-font-285742:2614474"))
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.12.2")
