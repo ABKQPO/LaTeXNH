@@ -82,8 +82,13 @@ latexnh.gui.config.general.render.renderquality.balanced=均衡
 latexnh.gui.config.general.render.renderquality.speed=高速
 
 key.latexnh.showLatex=显示 LaTeX Tooltip
+key.latexnh.previewSelectedLatex=预览选中 LaTeX
 key.categories.latexnh=LaTeXNH
 
 latexnh.tooltip.source.title=LaTeX 原文
 latexnh.tooltip.error.summary=LaTeX:%1$d:%2$d: 语法错误
 latexnh.tooltip.error.message=详细信息：%1$s
+latexnh.gui.config.general.render.selectedtooltipanchormode=选中公式 Tooltip 位置
+latexnh.gui.config.general.render.selectedtooltipanchormode.tooltip=Ctrl 预览选中 LaTeX 和当前语法错误提示的显示位置模式。
+latexnh.gui.config.general.render.selectedtooltipanchormode.follow_cursor=跟随鼠标
+latexnh.gui.config.general.render.selectedtooltipanchormode.anchor_text_field=固定在输入框附近

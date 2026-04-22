@@ -18,6 +18,7 @@ import com.hfstudio.latexnh.render.latex.LatexHintMode;
 import com.hfstudio.latexnh.render.latex.LatexRenderQuality;
 import com.hfstudio.latexnh.render.latex.LatexRenderStyle;
 import com.hfstudio.latexnh.render.latex.LatexTextureFiltering;
+import com.hfstudio.latexnh.tooltip.SelectedTooltipAnchorMode;
 
 @Config(modid = LaTeXNH.MODID, filename = "latexnh", configSubDirectory = "latexnh")
 @Config.LangKeyPattern(pattern = "latexnh.gui.config.%cat.%field", fullyQualified = true)
@@ -56,6 +57,11 @@ public class ModConfig {
         @DefaultFloat(1.0f)
         @Config.RangeFloat(min = 0.5f, max = 3.0f)
         public float tooltipScale = 1.0f;
+
+        @Comment({ "Placement mode for the Ctrl selected-LaTeX preview and active syntax-error tooltip",
+            "FOLLOW_CURSOR uses the mouse position, ANCHOR_TEXT_FIELD keeps the tooltip near the active text field" })
+        @DefaultEnum("ANCHOR_TEXT_FIELD")
+        public SelectedTooltipAnchorMode selectedTooltipAnchorMode = SelectedTooltipAnchorMode.ANCHOR_TEXT_FIELD;
 
         @Comment({ "Target display height for inline formula rendering in GUI units",
             "(default 16 ~= 2x font height). Valid range: 8 to 32" })

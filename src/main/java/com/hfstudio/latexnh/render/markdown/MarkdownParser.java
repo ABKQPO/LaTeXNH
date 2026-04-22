@@ -13,10 +13,13 @@ import org.scilab.forge.jlatexmath.TeXFormula;
 
 public final class MarkdownParser {
 
+    private static final float MIN_RENDER_SCALE = 0.25f;
+    private static final float MAX_RENDER_SCALE = 4.0f;
     private static final Pattern BOLD = Pattern.compile("\\*\\*(.+?)\\*\\*");
     private static final Pattern ITALIC = Pattern.compile("(?<![*_])\\*([^*\n]+?)\\*(?![*_])");
     private static final Pattern STRIKETHROUGH = Pattern.compile("~~(.+?)~~");
     private static final Pattern CODE = Pattern.compile("`([^`\n]+?)`");
+    private static final Pattern SCALE_SUFFIX = Pattern.compile("(?i)scale\\s*=\\s*([0-9]+(?:\\.[0-9]+)?|\\.[0-9]+)");
 
     public static List<TextSegment> parseSegments(String text) {
         List<TextSegment> result = new ArrayList<>();
@@ -38,6 +41,13 @@ public final class MarkdownParser {
                 int contentStart = cursor + delimiterLength;
                 int contentEnd = findClosingDelimiter(text, contentStart, delimiterLength);
                 if (contentEnd >= 0) {
+                    int segmentEnd = contentEnd + delimiterLength;
+                    float renderScale = 1.0f;
+                    ScaleSuffix scaleSuffix = parseScaleSuffix(text, segmentEnd);
+                    if (scaleSuffix != null) {
+                        segmentEnd = scaleSuffix.endIndex;
+                        renderScale = scaleSuffix.renderScale;
+                    }
                     if (cursor > plainStart) {
                         result.add(
                             new TextSegment(
@@ -52,8 +62,10 @@ public final class MarkdownParser {
                             delimiterLength == 2 ? TextSegment.SegmentType.LATEX_DISPLAY
                                 : TextSegment.SegmentType.LATEX_INLINE,
                             cursor,
-                            contentEnd + delimiterLength));
-                    cursor = contentEnd + delimiterLength;
+                            segmentEnd,
+                            text.substring(cursor, segmentEnd),
+                            renderScale));
+                    cursor = segmentEnd;
                     plainStart = cursor;
                     continue;
                 }
@@ -255,6 +267,36 @@ public final class MarkdownParser {
         return false;
     }
 
+    private static ScaleSuffix parseScaleSuffix(String text, int suffixStart) {
+        if (text == null || suffixStart < 0 || suffixStart >= text.length() || text.charAt(suffixStart) != '[') {
+            return null;
+        }
+
+        int suffixEnd = text.indexOf(']', suffixStart + 1);
+        if (suffixEnd < 0) {
+            return null;
+        }
+
+        Matcher matcher = SCALE_SUFFIX.matcher(text.substring(suffixStart + 1, suffixEnd));
+        if (!matcher.matches()) {
+            return null;
+        }
+
+        try {
+            float renderScale = Float.parseFloat(matcher.group(1));
+            if (!(renderScale > 0.0f)) {
+                return null;
+            }
+            return new ScaleSuffix(clampRenderScale(renderScale), suffixEnd + 1);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
+    }
+
+    private static float clampRenderScale(float renderScale) {
+        return Math.max(MIN_RENDER_SCALE, Math.min(MAX_RENDER_SCALE, renderScale));
+    }
+
     private static ErrorLocation findErrorLocation(String formula, String errMsg) {
         int index = extractIndexFromMessage(errMsg);
         if (index < 0) {
@@ -360,6 +402,17 @@ public final class MarkdownParser {
             }
 
             return new ErrorLocation(line, column, formula.substring(lineStart, lineEnd));
+        }
+    }
+
+    private static final class ScaleSuffix {
+
+        private final float renderScale;
+        private final int endIndex;
+
+        private ScaleSuffix(float renderScale, int endIndex) {
+            this.renderScale = renderScale;
+            this.endIndex = endIndex;
         }
     }
 }

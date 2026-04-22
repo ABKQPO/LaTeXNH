@@ -15,7 +15,7 @@ public class MixinGuiScreen {
 
     @Inject(method = "drawScreen", at = @At("HEAD"))
     private void latexnh$clearTooltipStateWhenDisabled(int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
-        if (!ModConfig.render.enableLatexRendering || !ModConfig.render.enableHoverTooltip) {
+        if (!ModConfig.render.enableLatexRendering) {
             TooltipState.INSTANCE.clear();
         }
     }

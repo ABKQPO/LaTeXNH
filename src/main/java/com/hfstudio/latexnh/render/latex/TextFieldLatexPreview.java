@@ -43,6 +43,16 @@ public final class TextFieldLatexPreview {
         return focused ? cursorPosition : visibleStartIndex;
     }
 
+    public static String resolveShortcutTooltipFormula(String text, boolean focused, int cursorPosition,
+        boolean shortcutDown) {
+        if (!shortcutDown || !focused || text == null || text.isEmpty()) {
+            return null;
+        }
+
+        TextSegment segment = MarkdownParser.getLatexSegmentAtCursor(text, cursorPosition);
+        return segment == null ? null : segment.content;
+    }
+
     public static Plan plan(String visibleText, TextSegment visibleSegment, WidthMeasurer widthMeasurer,
         int renderedLatexWidth, int availableWidth) {
         if (visibleSegment == null || !visibleSegment.isLatex()) {

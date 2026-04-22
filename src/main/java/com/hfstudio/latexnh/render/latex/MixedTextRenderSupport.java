@@ -67,8 +67,7 @@ public final class MixedTextRenderSupport {
                 continue;
             }
 
-            float displayHeight = segment.isDisplayLatex() ? ModConfig.render.inlineHeight * 1.5f
-                : ModConfig.render.inlineHeight;
+            float displayHeight = resolveDisplayHeight(segment);
 
             if (!shouldRenderLatexInCurrentPass(shadow, combinedShadowPass)) {
                 int shadowWidth = LatexRenderer.INSTANCE.measureLatexWidth(
@@ -152,8 +151,7 @@ public final class MixedTextRenderSupport {
                 continue;
             }
 
-            float displayHeight = segment.isDisplayLatex() ? ModConfig.render.inlineHeight * 1.5f
-                : ModConfig.render.inlineHeight;
+            float displayHeight = resolveDisplayHeight(segment);
             int renderedWidth = LatexRenderer.INSTANCE
                 .measureLatexWidth(segment.content, displayHeight, formattingState.getCurrentColorArgb(), colorPalette);
             if (renderedWidth > 0) {
@@ -166,6 +164,12 @@ public final class MixedTextRenderSupport {
         }
 
         return total;
+    }
+
+    private static float resolveDisplayHeight(TextSegment segment) {
+        float baseHeight = segment.isDisplayLatex() ? ModConfig.render.inlineHeight * 1.5f
+            : ModConfig.render.inlineHeight;
+        return Math.max(1.0f, baseHeight * segment.renderScale);
     }
 
     private static float renderSourceSegment(String sourceText, MinecraftTextFormattingState formattingState, float x,

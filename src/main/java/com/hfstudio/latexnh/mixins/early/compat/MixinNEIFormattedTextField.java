@@ -13,13 +13,16 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.hfstudio.latexnh.config.ModConfig;
+import com.hfstudio.latexnh.keybind.KeyBindings;
 import com.hfstudio.latexnh.render.latex.LatexRenderContext;
 import com.hfstudio.latexnh.render.latex.LatexRenderer;
 import com.hfstudio.latexnh.render.latex.LatexTextureCache;
 import com.hfstudio.latexnh.render.latex.TextFieldLatexPreview;
 import com.hfstudio.latexnh.render.markdown.MarkdownParser;
 import com.hfstudio.latexnh.render.markdown.TextSegment;
-import com.hfstudio.latexnh.tooltip.TooltipRenderer;
+import com.hfstudio.latexnh.tooltip.LatexTooltipMode;
+import com.hfstudio.latexnh.tooltip.SelectedTooltipAnchorMode;
+import com.hfstudio.latexnh.tooltip.TooltipState;
 
 @Pseudo
 @Mixin(targets = "codechicken.nei.FormattedTextField", remap = false)
@@ -92,15 +95,43 @@ public abstract class MixinNEIFormattedTextField extends GuiTextField {
             }
 
             LatexRenderer.INSTANCE.getOrCreateTexture(activeSegment.content);
+            LatexTooltipMode tooltipMode = LatexTooltipMode
+                .fromHotkeys(KeyBindings.isPreviewSelectedLatexDown(), KeyBindings.isShowLatexDown());
+            boolean followMouse = ModConfig.render.selectedTooltipAnchorMode == SelectedTooltipAnchorMode.FOLLOW_CURSOR;
+            int tooltipAnchorX = xPosition + 2;
+            int tooltipAnchorY = yPosition - 4;
             if (!LatexTextureCache.INSTANCE.hasFailed(activeSegment.content)) {
+                if (TextFieldLatexPreview.resolveShortcutTooltipFormula(
+                    currentText,
+                    isFocused(),
+                    getCursorPosition(),
+                    tooltipMode.isActive()) != null) {
+                    if (tooltipMode.rendersLatex()) {
+                        TooltipState.INSTANCE.requestSelectedLatexTooltip(
+                            activeSegment.content,
+                            activeSegment.renderScale,
+                            tooltipAnchorX,
+                            tooltipAnchorY,
+                            followMouse);
+                    } else if (tooltipMode.rendersSourceText()) {
+                        TooltipState.INSTANCE.requestSelectedTextTooltip(
+                            MarkdownParser.buildSourceLines(activeSegment.content),
+                            tooltipAnchorX,
+                            tooltipAnchorY,
+                            followMouse);
+                    }
+                }
                 return;
             }
 
-            String errorInfo = LatexTextureCache.INSTANCE.getError(activeSegment.content);
-            TooltipRenderer.INSTANCE.renderTextTooltip(
-                MarkdownParser.buildErrorLines(activeSegment.content, errorInfo),
-                xPosition + 2,
-                yPosition - 4);
+            if (tooltipMode.isActive()) {
+                String errorInfo = LatexTextureCache.INSTANCE.getError(activeSegment.content);
+                TooltipState.INSTANCE.requestSelectedTextTooltip(
+                    MarkdownParser.buildErrorLines(activeSegment.content, errorInfo),
+                    tooltipAnchorX,
+                    tooltipAnchorY,
+                    followMouse);
+            }
         } finally {
             if (latexnh$lineScrollOffsetOverridden) {
                 lineScrollOffset = latexnh$originalLineScrollOffset;

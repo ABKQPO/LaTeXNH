@@ -84,6 +84,10 @@ public final class TooltipRenderer {
     }
 
     public void renderLatexTooltip(String formula, int mouseX, int mouseY) {
+        renderLatexTooltip(formula, 1.0f, mouseX, mouseY);
+    }
+
+    public void renderLatexTooltip(String formula, float renderScale, int mouseX, int mouseY) {
         Minecraft minecraft = Minecraft.getMinecraft();
         ScaledResolution scaledResolution = new ScaledResolution(
             minecraft,
@@ -100,7 +104,7 @@ public final class TooltipRenderer {
         float srcWidth = texture[1];
         float srcHeight = texture[2];
         float maxWidth = screenWidth * 0.55f;
-        float displayHeight = ModConfig.render.tooltipScale * 30f;
+        float displayHeight = Math.max(8.0f, ModConfig.render.tooltipScale * 30f * Math.max(0.25f, renderScale));
         float scale = displayHeight / srcHeight;
         float renderWidth = srcWidth * scale;
         float renderHeight = displayHeight;

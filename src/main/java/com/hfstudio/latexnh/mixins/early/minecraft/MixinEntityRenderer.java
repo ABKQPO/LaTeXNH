@@ -24,6 +24,7 @@ import com.hfstudio.latexnh.render.latex.LatexRenderEntry;
 import com.hfstudio.latexnh.render.latex.LatexRenderTracker;
 import com.hfstudio.latexnh.render.latex.LatexTextureCache;
 import com.hfstudio.latexnh.render.markdown.MarkdownParser;
+import com.hfstudio.latexnh.tooltip.LatexTooltipMode;
 import com.hfstudio.latexnh.tooltip.TooltipRenderer;
 import com.hfstudio.latexnh.tooltip.TooltipState;
 
@@ -46,8 +47,10 @@ public class MixinEntityRenderer {
 
         int rawMouseY = Mouse.getY();
         ScaledResolution scaledResolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+        LatexTooltipMode tooltipMode = LatexTooltipMode
+            .fromHotkeys(KeyBindings.isPreviewSelectedLatexDown(), KeyBindings.isShowLatexDown());
         boolean freezeMouse = ModConfig.render.enableLatexRendering && ModConfig.render.enableHoverTooltip
-            && KeyBindings.isShowLatexDown();
+            && tooltipMode.isActive();
 
         TooltipState.INSTANCE.captureRaw(
             freezeMouse,
@@ -83,7 +86,9 @@ public class MixinEntityRenderer {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiScreen;drawScreen(IIF)V"))
     private void latexnh$drawScreenWithLatexTooltipOnTop(GuiScreen screen, int mouseX, int mouseY, float partialTicks) {
         screen.drawScreen(mouseX, mouseY, partialTicks);
-        latexnh$renderHoveredLatexTooltip();
+        if (!latexnh$renderSelectedLatexTooltip()) {
+            latexnh$renderHoveredLatexTooltip();
+        }
     }
 
     @Inject(method = "updateCameraAndRender(F)V", at = @At("RETURN"))
@@ -93,19 +98,52 @@ public class MixinEntityRenderer {
 
     @Unique
     private void latexnh$renderHoveredLatexTooltip() {
+        LatexTooltipMode tooltipMode = LatexTooltipMode
+            .fromHotkeys(KeyBindings.isPreviewSelectedLatexDown(), KeyBindings.isShowLatexDown());
         if (!ModConfig.render.enableLatexRendering || !ModConfig.render.enableHoverTooltip
-            || !KeyBindings.isShowLatexDown()) {
+            || !tooltipMode.isActive()
+            || TooltipState.INSTANCE.hasInlineTooltipRendered()) {
             return;
         }
 
         int actualMouseX = TooltipState.INSTANCE.getActualMouseX();
         int actualMouseY = TooltipState.INSTANCE.getActualMouseY();
-        LatexRenderEntry entry = LatexRenderTracker.INSTANCE.getEntryAt(actualMouseX, actualMouseY);
+        LatexRenderEntry entry = TooltipState.INSTANCE.resolveStableHoveredEntry(
+            LatexRenderTracker.INSTANCE.getEntryAt(actualMouseX, actualMouseY),
+            actualMouseX,
+            actualMouseY);
         if (entry == null) {
             return;
         }
 
+        if (tooltipMode.rendersLatex() && !entry.failed) {
+            TooltipRenderer.INSTANCE.renderLatexTooltip(entry.formula, actualMouseX, actualMouseY);
+            return;
+        }
+
         TooltipRenderer.INSTANCE.renderTextTooltip(latexnh$buildTooltipLines(entry), actualMouseX, actualMouseY);
+    }
+
+    @Unique
+    private boolean latexnh$renderSelectedLatexTooltip() {
+        if (!ModConfig.render.enableLatexRendering) {
+            return false;
+        }
+
+        TooltipState.SelectedTooltipRequest request = TooltipState.INSTANCE.getSelectedTooltipRequest();
+        if (request == null) {
+            return false;
+        }
+
+        int anchorX = request.followMouse() ? TooltipState.INSTANCE.getActualMouseX() : request.anchorX();
+        int anchorY = request.followMouse() ? TooltipState.INSTANCE.getActualMouseY() : request.anchorY();
+        if (request.renderLatex()) {
+            TooltipRenderer.INSTANCE.renderLatexTooltip(request.formula(), request.renderScale(), anchorX, anchorY);
+            return true;
+        }
+
+        TooltipRenderer.INSTANCE.renderTextTooltip(request.textLines(), anchorX, anchorY);
+        return true;
     }
 
     @Unique

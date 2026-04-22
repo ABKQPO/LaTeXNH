@@ -2,6 +2,8 @@ package com.hfstudio.latexnh.render.markdown;
 
 public final class TextSegment {
 
+    private static final float DEFAULT_RENDER_SCALE = 1.0f;
+
     public enum SegmentType {
         PLAIN,
         LATEX_INLINE,
@@ -12,16 +14,25 @@ public final class TextSegment {
     public final SegmentType type;
     public final int startIndex;
     public final int endIndex;
+    public final String sourceText;
+    public final float renderScale;
 
     public TextSegment(String content, SegmentType type) {
-        this(content, type, -1, -1);
+        this(content, type, -1, -1, null, DEFAULT_RENDER_SCALE);
     }
 
     public TextSegment(String content, SegmentType type, int startIndex, int endIndex) {
-        this.content = content;
-        this.type = type;
+        this(content, type, startIndex, endIndex, null, DEFAULT_RENDER_SCALE);
+    }
+
+    public TextSegment(String content, SegmentType type, int startIndex, int endIndex, String sourceText,
+        float renderScale) {
+        this.content = content == null ? "" : content;
+        this.type = type == null ? SegmentType.PLAIN : type;
         this.startIndex = startIndex;
         this.endIndex = endIndex;
+        this.sourceText = sourceText == null ? buildDefaultSourceText(this.content, this.type) : sourceText;
+        this.renderScale = renderScale > 0.0f ? renderScale : DEFAULT_RENDER_SCALE;
     }
 
     public boolean isLatex() {
@@ -40,19 +51,22 @@ public final class TextSegment {
     }
 
     public boolean containsCursor(int cursorPos) {
-        if (!isLatex()) {
+        if (!isLatex() || startIndex < 0 || endIndex < 0) {
             return false;
         }
         int contentStart = startIndex + getDelimiterLength();
-        int contentEnd = endIndex - getDelimiterLength();
-        return cursorPos > contentStart && cursorPos < contentEnd;
+        return cursorPos > contentStart && cursorPos < endIndex;
     }
 
     public String toSourceText() {
-        if (!isLatex()) {
-            return content;
+        return sourceText;
+    }
+
+    private static String buildDefaultSourceText(String content, SegmentType type) {
+        if (type == null || type == SegmentType.PLAIN) {
+            return content == null ? "" : content;
         }
-        String delimiter = isDisplayLatex() ? "$$" : "$";
-        return delimiter + content + delimiter;
+        String delimiter = type == SegmentType.LATEX_DISPLAY ? "$$" : "$";
+        return delimiter + (content == null ? "" : content) + delimiter;
     }
 }

@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.hfstudio.latexnh.render.latex.LatexRenderTracker;
 import com.hfstudio.latexnh.render.latex.LatexTextureCache;
+import com.hfstudio.latexnh.tooltip.TooltipState;
 
 @Mixin(Minecraft.class)
 public class MixinMinecraft {
@@ -18,6 +19,7 @@ public class MixinMinecraft {
     @Inject(method = "runGameLoop", at = @At("HEAD"))
     private void latexnh$beginRenderFrame(CallbackInfo ci) {
         LatexRenderTracker.INSTANCE.beginFrame();
+        TooltipState.INSTANCE.beginFrame();
     }
 
     @Inject(

@@ -73,6 +73,15 @@ class TextFieldLatexPreviewTest {
         assertEquals("$LAT", plan.visibleText);
     }
 
+    @Test
+    void resolvesShortcutTooltipFormulaWhenFocusedCursorIsInsideLatex() {
+        assertEquals("LATEX", TextFieldLatexPreview.resolveShortcutTooltipFormula("ab$LATEX$cd", true, 5, true));
+        assertEquals("1", TextFieldLatexPreview.resolveShortcutTooltipFormula("$1$", true, 2, true));
+        assertEquals(null, TextFieldLatexPreview.resolveShortcutTooltipFormula("ab$LATEX$cd", true, 5, false));
+        assertEquals(null, TextFieldLatexPreview.resolveShortcutTooltipFormula("ab$LATEX$cd", false, 5, true));
+        assertEquals(null, TextFieldLatexPreview.resolveShortcutTooltipFormula("abcd", true, 2, true));
+    }
+
     private static int measureWithRenderedFormula(String text, int renderedWidth) {
         return text.replace(FORMULA_SOURCE, repeat('x', renderedWidth))
             .length();
