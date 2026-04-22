@@ -1,0 +1,51 @@
+package com.hfstudio.latexnh;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.hfstudio.Tags;
+
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+
+@Mod(
+    modid = LaTeXNH.MODID,
+    name = LaTeXNH.MODNAME,
+    version = Tags.VERSION,
+    guiFactory = "com.hfstudio.latexnh.LaTeXNHGuiFactory")
+public class LaTeXNH {
+
+    public static final String MODID = Tags.MODID;
+    public static final String MODNAME = Tags.MODNAME;
+    public static final Logger LOG = LogManager.getLogger(MODID);
+
+    @Mod.Instance(MODID)
+    public static LaTeXNH instance;
+
+    @SidedProxy(clientSide = "com.hfstudio.latexnh.ClientProxy", serverSide = "com.hfstudio.latexnh.CommonProxy")
+    public static CommonProxy proxy;
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        proxy.preInit(event);
+    }
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent event) {
+        proxy.init(event);
+    }
+
+    @Mod.EventHandler
+    public void postInit(FMLPostInitializationEvent event) {
+        proxy.postInit(event);
+    }
+
+    @Mod.EventHandler
+    public void completeInit(FMLLoadCompleteEvent event) {
+        proxy.completeInit(event);
+    }
+}
