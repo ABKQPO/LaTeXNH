@@ -26,6 +26,15 @@ public final class LatexFormattingParser {
     }
 
     public static String toRenderableFormula(String formula, int defaultArgb, int[] colorPalette) {
+        return toRenderableFormula(formula, defaultArgb, colorPalette, true);
+    }
+
+    public static String toRenderableFormula(String formula, int defaultArgb, int[] colorPalette,
+        boolean allowFormattingColor) {
+        if (!allowFormattingColor) {
+            return stripFormattingCodes(formula);
+        }
+
         List<FormattedRun> runs = parseRuns(formula, defaultArgb, colorPalette);
         if (runs.isEmpty()) {
             return "";

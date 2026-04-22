@@ -21,8 +21,6 @@ public final class LatexRenderer {
 
     public static final LatexRenderer INSTANCE = new LatexRenderer();
 
-    public static final float RENDER_SCALE = 60f;
-
     private LatexRenderer() {}
 
     public int[] getOrCreateTexture(String formula) {
@@ -42,9 +40,11 @@ public final class LatexRenderer {
 
         try {
             String strippedFormula = LatexFormattingParser.stripFormattingCodes(formula);
+            LatexFontResolver.Selection fontSelection = LatexFontResolver.resolveConfiguredSelection();
+            LatexFontResolver.applySelection(strippedFormula, fontSelection);
             new TeXFormula(strippedFormula);
             String renderableFormula = LatexFormattingParser
-                .toRenderableFormula(formula, style.fillColorArgb, colorPalette);
+                .toRenderableFormula(formula, style.fillColorArgb, colorPalette, style.allowFormattingColor);
             String cacheFormula = renderableFormula;
 
             int[] cached = LatexTextureCache.INSTANCE.get(cacheFormula, style);
@@ -63,12 +63,12 @@ public final class LatexRenderer {
                 }
                 texFormula = new TeXFormula(strippedFormula);
             }
-            TeXIcon icon = texFormula.createTeXIcon(TeXConstants.STYLE_DISPLAY, RENDER_SCALE);
+            TeXIcon icon = buildIcon(texFormula, style, fontSelection);
             icon.setInsets(new Insets(2, 2, 2, 2));
             icon.setForeground(new Color(style.fillColorArgb, true));
 
             BufferedImage image = renderFormulaImage(icon, style);
-            int textureId = uploadTexture(image, image.getWidth(), image.getHeight());
+            int textureId = uploadTexture(image, image.getWidth(), image.getHeight(), style);
             LatexTextureCache.INSTANCE.put(cacheFormula, style, textureId, image.getWidth(), image.getHeight());
             return new int[] { textureId, image.getWidth(), image.getHeight() };
         } catch (ParseException e) {
@@ -142,6 +142,19 @@ public final class LatexRenderer {
         return srcWidth * scale;
     }
 
+    private TeXIcon buildIcon(TeXFormula texFormula, LatexRenderStyle style,
+        LatexFontResolver.Selection fontSelection) {
+        TeXFormula.TeXIconBuilder builder = texFormula.new TeXIconBuilder().setStyle(TeXConstants.STYLE_DISPLAY)
+            .setSize(style.sourceRenderScale)
+            .setFGColor(new Color(style.fillColorArgb, true));
+
+        if (fontSelection.getTeXType() >= 0) {
+            builder.setType(fontSelection.getTeXType());
+        }
+
+        return builder.build();
+    }
+
     private void renderQuad(int textureId, float x, float y, float renderWidth, float renderHeight) {
         GL11.glPushAttrib(GL11.GL_TEXTURE_BIT | GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -167,9 +180,16 @@ public final class LatexRenderer {
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
-        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, style.shapeAntialiasing.toGeneralAntialiasHint());
+        graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, style.textAntialiasing.toTextAntialiasHint());
+        graphics.setRenderingHint(RenderingHints.KEY_RENDERING, style.renderQuality.toRenderingHint());
+        graphics
+            .setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, style.renderQuality.toAlphaInterpolationHint());
+        graphics.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, style.renderQuality.toColorRenderingHint());
+        graphics.setRenderingHint(
+            RenderingHints.KEY_FRACTIONALMETRICS,
+            style.enableFractionalMetrics ? RenderingHints.VALUE_FRACTIONALMETRICS_ON
+                : RenderingHints.VALUE_FRACTIONALMETRICS_OFF);
         graphics.setColor(new Color(0, 0, 0, 0));
         graphics.fillRect(0, 0, width, height);
         icon.paintIcon(null, graphics, 0, 0);
@@ -178,7 +198,7 @@ public final class LatexRenderer {
         return LatexImageEffects.applyOutline(image, style.outlineColorArgb, style.outlineThicknessPx);
     }
 
-    private static int uploadTexture(BufferedImage image, int width, int height) {
+    private static int uploadTexture(BufferedImage image, int width, int height, LatexRenderStyle style) {
         int[] pixels = new int[width * height];
         image.getRGB(0, 0, width, height, pixels, 0, width);
 
@@ -193,8 +213,9 @@ public final class LatexRenderer {
 
         int textureId = GL11.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        int textureFilter = style.textureFiltering.getGlConstant();
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, textureFilter);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, textureFilter);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
         GL11.glTexImage2D(

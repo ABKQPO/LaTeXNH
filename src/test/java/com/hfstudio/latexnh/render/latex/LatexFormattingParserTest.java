@@ -58,4 +58,11 @@ class LatexFormattingParserTest {
         assertTrue(rendered.contains("\\definecolor{latexnhcolor0}{rgb}{0.0667,0.1333,0.2}"));
         assertTrue(rendered.endsWith("x\\textcolor{latexnhcolor0}{y}"));
     }
+
+    @Test
+    void toRenderableFormulaCanIgnoreFormattingColors() {
+        String rendered = LatexFormattingParser.toRenderableFormula("x\u00a7cy\u00a7rz", 0xFF336699, null, false);
+
+        assertEquals("xyz", rendered);
+    }
 }

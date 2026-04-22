@@ -1,36 +1,89 @@
-latexnh.gui.config.general=总览配置
+latexnh.gui.config.general=通用配置
 latexnh.gui.config.general.debug=调试设置
-latexnh.gui.config.general.debug.tooltip=开发与调试
+latexnh.gui.config.general.debug.tooltip=开发与调试相关选项。
 
 latexnh.gui.config.general.debug.enabledebugmode=调试模式
-latexnh.gui.config.general.debug.enabledebugmode.tooltip=启用调试日志输出
+latexnh.gui.config.general.debug.enabledebugmode.tooltip=启用详细调试日志输出。
 
 latexnh.gui.config.general.render=渲染设置
-latexnh.gui.config.general.render.tooltip=LaTeX / Markdown 渲染选项
+latexnh.gui.config.general.render.tooltip=LaTeX / Markdown 渲染相关选项。
 
 latexnh.gui.config.general.render.enablelatexrendering=启用 LaTeX 渲染
-latexnh.gui.config.general.render.enablelatexrendering.tooltip=将 $...$ 和 $$...$$ 渲染为 LaTeX 公式图像，关闭后显示原始文本
+latexnh.gui.config.general.render.enablelatexrendering.tooltip=将 $...$ 和 $$...$$ 以内的内容渲染为 LaTeX 公式。关闭后显示原始文本。
 
-latexnh.gui.config.general.render.enablehovertooltip=启用 Alt+悬停 Tooltip
-latexnh.gui.config.general.render.enablehovertooltip.tooltip=悬停于渲染成功或失败的 LaTeX 并按住 Alt 时，显示公式原文或语法错误信息
+latexnh.gui.config.general.render.enablehovertooltip=启用 Alt 悬停 Tooltip
+latexnh.gui.config.general.render.enablehovertooltip.tooltip=按住 Alt 并悬停在已渲染或渲染失败的 LaTeX 上时，显示公式原文或语法错误信息。
 
 latexnh.gui.config.general.render.tooltipscale=Tooltip 缩放
-latexnh.gui.config.general.render.tooltipscale.tooltip=Alt+悬停图像 tooltip 的缩放系数，1.0 = 默认大小
+latexnh.gui.config.general.render.tooltipscale.tooltip=Alt 悬停公式预览图的缩放系数，1.0 为默认大小。
 
 latexnh.gui.config.general.render.inlineheight=行内公式高度
-latexnh.gui.config.general.render.inlineheight.tooltip=行内 LaTeX 公式的目标显示高度（GUI 逻辑单位），默认 16 ≈ 2 倍字体高度
+latexnh.gui.config.general.render.inlineheight.tooltip=行内 LaTeX 公式的显示高度（GUI 逻辑单位）。默认 16（约 2 倍字体高度）。
+
+latexnh.gui.config.general.render.sourcerenderscale=源码渲染尺度
+latexnh.gui.config.general.render.sourcerenderscale.tooltip=上传纹理前传给 JLaTeXMath 的源光栅尺度。数值越高通常越清晰，但会增加 CPU 和纹理开销。
+
+latexnh.gui.config.general.render.fontfamily=LaTeX 字体族
+latexnh.gui.config.general.render.fontfamily.tooltip=选择 LaTeX 公式的基础字体。DEFAULT 使用 JLaTeXMath 默认字体，UNIFONT 使用内置 Unifont，SYSTEM 使用下方填写的系统字体名。
+
+latexnh.gui.config.general.render.customsystemfontname=系统字体名
+latexnh.gui.config.general.render.customsystemfontname.tooltip=仅在 LaTeX 字体族为 SYSTEM 时生效。例如：Noto Sans SC。若找不到该字体，会回退到 JLaTeXMath 默认字体。
 
 latexnh.gui.config.general.render.formulacolor=公式颜色
-latexnh.gui.config.general.render.formulacolor.tooltip=渲染后的 LaTeX 默认填充颜色。使用 #RRGGBB 或 #AARRGGBB，公式内的 § 颜色码仍会覆盖它。
+latexnh.gui.config.general.render.formulacolor.tooltip=渲染后的 LaTeX 默认填充颜色。使用 #RRGGBB 或 #AARRGGBB。启用格式染色时，Minecraft 颜色代码仍可覆盖它。
+
+latexnh.gui.config.general.render.allowformattingcolor=允许格式染色
+latexnh.gui.config.general.render.allowformattingcolor.tooltip=允许 Minecraft 和 Angelica 的颜色代码影响 LaTeX 公式颜色。关闭后只使用“公式颜色”配置。
+
+latexnh.gui.config.general.render.texturefiltering=纹理过滤
+latexnh.gui.config.general.render.texturefiltering.tooltip=LaTeX 纹理缩放时使用的 OpenGL 过滤方式。NEAREST 会让放大后的公式保持清晰像素边缘，LINEAR 更平滑但更容易发糊。
+
+latexnh.gui.config.general.render.shapeantialiasing=图形抗锯齿
+latexnh.gui.config.general.render.shapeantialiasing.tooltip=绘制中间 LaTeX 图像时使用的 AWT 通用矢量抗锯齿设置。
+
+latexnh.gui.config.general.render.textantialiasing=文字抗锯齿
+latexnh.gui.config.general.render.textantialiasing.tooltip=将 LaTeX 字形绘制到纹理时使用的 AWT 文本抗锯齿设置。
+
+latexnh.gui.config.general.render.renderquality=渲染质量
+latexnh.gui.config.general.render.renderquality.tooltip=中间 LaTeX 图像使用的 AWT 总体渲染质量提示。
+
+latexnh.gui.config.general.render.enablefractionalmetrics=分数字宽
+latexnh.gui.config.general.render.enablefractionalmetrics.tooltip=光栅化 LaTeX 文字时启用分数字宽。通常能改善间距，但边缘会略微软一些。
+
+latexnh.gui.config.general.render.testinputtext=测试输入文本
+latexnh.gui.config.general.render.testinputtext.tooltip=用于手动测试字体和渲染效果的自由输入文本。LaTeXNH 代码不会在任何地方使用它，只会保存到配置里。
 
 latexnh.gui.config.general.render.outlinecolor=描边颜色
-latexnh.gui.config.general.render.outlinecolor.tooltip=渲染后的 LaTeX 描边颜色。使用 #RRGGBB 或 #AARRGGBB。
+latexnh.gui.config.general.render.outlinecolor.tooltip=渲染后 LaTeX 的描边颜色。使用 #RRGGBB 或 #AARRGGBB。
 
 latexnh.gui.config.general.render.outlinethickness=描边粗细
-latexnh.gui.config.general.render.outlinethickness.tooltip=渲染后的 LaTeX 描边粗细，单位为源纹理像素。设为 0 可关闭描边。
+latexnh.gui.config.general.render.outlinethickness.tooltip=渲染后 LaTeX 的描边粗细，单位为源纹理像素。设为 0 可关闭描边。
+
+latexnh.gui.config.general.render.fontfamily.default=默认
+latexnh.gui.config.general.render.fontfamily.serif=衬线字体
+latexnh.gui.config.general.render.fontfamily.sans_serif=无衬线字体
+latexnh.gui.config.general.render.fontfamily.typewriter=等宽字体
+latexnh.gui.config.general.render.fontfamily.unifont=内置 Unifont
+latexnh.gui.config.general.render.fontfamily.system=系统字体
+
+latexnh.gui.config.general.render.texturefiltering.linear=线性
+latexnh.gui.config.general.render.texturefiltering.nearest=最近邻
+
+latexnh.gui.config.general.render.shapeantialiasing.default=默认
+latexnh.gui.config.general.render.shapeantialiasing.on=开启
+latexnh.gui.config.general.render.shapeantialiasing.off=关闭
+
+latexnh.gui.config.general.render.textantialiasing.default=默认
+latexnh.gui.config.general.render.textantialiasing.on=开启
+latexnh.gui.config.general.render.textantialiasing.off=关闭
+
+latexnh.gui.config.general.render.renderquality.quality=高质量
+latexnh.gui.config.general.render.renderquality.balanced=均衡
+latexnh.gui.config.general.render.renderquality.speed=高速
 
 key.latexnh.showLatex=显示 LaTeX Tooltip
 key.categories.latexnh=LaTeXNH
+
 latexnh.tooltip.source.title=LaTeX 原文
 latexnh.tooltip.error.summary=LaTeX:%1$d:%2$d: 语法错误
 latexnh.tooltip.error.message=详细信息：%1$s

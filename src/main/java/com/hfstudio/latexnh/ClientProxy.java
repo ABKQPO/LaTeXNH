@@ -1,5 +1,6 @@
 package com.hfstudio.latexnh;
 
+import com.hfstudio.latexnh.config.LatexConfigChangeHandler;
 import com.hfstudio.latexnh.keybind.KeyBindings;
 import com.hfstudio.latexnh.render.latex.LatexCacheCleanupHandler;
 
@@ -20,6 +21,7 @@ public class ClientProxy extends CommonProxy {
     public void init(FMLInitializationEvent event) {
         super.init(event);
         LatexCacheCleanupHandler.register();
+        LatexConfigChangeHandler.register();
     }
 
     @Override

@@ -20,8 +20,38 @@ latexnh.gui.config.general.render.tooltipscale.tooltip=Scale factor for the Alt+
 latexnh.gui.config.general.render.inlineheight=Inline Formula Height
 latexnh.gui.config.general.render.inlineheight.tooltip=Display height (in GUI units) for inline LaTeX formulas. Default: 16 (~2x font height).
 
+latexnh.gui.config.general.render.sourcerenderscale=Source Render Scale
+latexnh.gui.config.general.render.sourcerenderscale.tooltip=The JLaTeXMath source raster scale before the texture is uploaded. Higher values are usually sharper but cost more CPU and memory.
+
+latexnh.gui.config.general.render.fontfamily=LaTeX Font Family
+latexnh.gui.config.general.render.fontfamily.tooltip=Choose the base font family for rendered LaTeX. DEFAULT keeps JLaTeXMath fonts, UNIFONT uses the bundled font, SYSTEM uses the custom system font name below.
+
+latexnh.gui.config.general.render.customsystemfontname=System Font Name
+latexnh.gui.config.general.render.customsystemfontname.tooltip=Used only when LaTeX Font Family is SYSTEM. Example: Noto Sans SC. Missing fonts fall back to the JLaTeXMath default.
+
 latexnh.gui.config.general.render.formulacolor=Formula Color
-latexnh.gui.config.general.render.formulacolor.tooltip=Default fill color for rendered LaTeX. Use #RRGGBB or #AARRGGBB. § color codes inside the formula still override it.
+latexnh.gui.config.general.render.formulacolor.tooltip=Default fill color for rendered LaTeX. Use #RRGGBB or #AARRGGBB. Minecraft color codes can still override it when formatting tint is enabled.
+
+latexnh.gui.config.general.render.allowformattingcolor=Allow Formatting Tint
+latexnh.gui.config.general.render.allowformattingcolor.tooltip=Allow Minecraft and Angelica color codes to tint LaTeX formulas. Disable to always use Formula Color instead.
+
+latexnh.gui.config.general.render.texturefiltering=Texture Filtering
+latexnh.gui.config.general.render.texturefiltering.tooltip=OpenGL texture filtering used when the LaTeX texture is scaled. NEAREST keeps magnified formulas crisp, LINEAR is smoother but blurrier.
+
+latexnh.gui.config.general.render.shapeantialiasing=Shape Antialiasing
+latexnh.gui.config.general.render.shapeantialiasing.tooltip=General AWT vector antialiasing when painting the intermediate LaTeX image.
+
+latexnh.gui.config.general.render.textantialiasing=Text Antialiasing
+latexnh.gui.config.general.render.textantialiasing.tooltip=AWT text antialiasing used when painting LaTeX glyphs into the texture.
+
+latexnh.gui.config.general.render.renderquality=Render Quality
+latexnh.gui.config.general.render.renderquality.tooltip=Overall AWT rendering quality hint for the intermediate LaTeX image.
+
+latexnh.gui.config.general.render.enablefractionalmetrics=Fractional Metrics
+latexnh.gui.config.general.render.enablefractionalmetrics.tooltip=Use fractional glyph metrics when rasterizing LaTeX text. This often improves spacing at the cost of slightly softer edges.
+
+latexnh.gui.config.general.render.testinputtext=Test Input Text
+latexnh.gui.config.general.render.testinputtext.tooltip=Free-form scratch text for manual font and rendering tests. LaTeXNH does not use this value anywhere in code.
 
 latexnh.gui.config.general.render.outlinecolor=Outline Color
 latexnh.gui.config.general.render.outlinecolor.tooltip=Outline color around rendered LaTeX. Use #RRGGBB or #AARRGGBB.
@@ -29,8 +59,31 @@ latexnh.gui.config.general.render.outlinecolor.tooltip=Outline color around rend
 latexnh.gui.config.general.render.outlinethickness=Outline Thickness
 latexnh.gui.config.general.render.outlinethickness.tooltip=Outline thickness around rendered LaTeX in source texture pixels. 0 disables the outline.
 
+latexnh.gui.config.general.render.fontfamily.default=Default
+latexnh.gui.config.general.render.fontfamily.serif=Serif
+latexnh.gui.config.general.render.fontfamily.sans_serif=Sans Serif
+latexnh.gui.config.general.render.fontfamily.typewriter=Typewriter
+latexnh.gui.config.general.render.fontfamily.unifont=Bundled Unifont
+latexnh.gui.config.general.render.fontfamily.system=System Font
+
+latexnh.gui.config.general.render.texturefiltering.linear=Linear
+latexnh.gui.config.general.render.texturefiltering.nearest=Nearest Neighbor
+
+latexnh.gui.config.general.render.shapeantialiasing.default=Default
+latexnh.gui.config.general.render.shapeantialiasing.on=On
+latexnh.gui.config.general.render.shapeantialiasing.off=Off
+
+latexnh.gui.config.general.render.textantialiasing.default=Default
+latexnh.gui.config.general.render.textantialiasing.on=On
+latexnh.gui.config.general.render.textantialiasing.off=Off
+
+latexnh.gui.config.general.render.renderquality.quality=Quality
+latexnh.gui.config.general.render.renderquality.balanced=Balanced
+latexnh.gui.config.general.render.renderquality.speed=Speed
+
 key.latexnh.showLatex=Show LaTeX Tooltip
 key.categories.latexnh=LaTeXNH
+
 latexnh.tooltip.source.title=LaTeX Source
 latexnh.tooltip.error.summary=LaTeX:%1$d:%2$d: Syntax error
 latexnh.tooltip.error.message=Message: %1$s

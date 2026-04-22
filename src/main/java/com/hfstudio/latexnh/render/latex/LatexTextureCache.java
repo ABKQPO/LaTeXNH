@@ -73,6 +73,7 @@ public final class LatexTextureCache {
         }
         cache.clear();
         errorMessages.clear();
+        activeStyleKey = null;
     }
 
     private static String buildCacheKey(String formula, LatexRenderStyle style) {
